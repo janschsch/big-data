@@ -86,7 +86,7 @@ def process_and_visualize_comments(df, n_clusters=5):
     # Streamlit Radar-Diagramm
     st.subheader("Cluster-Verteilung (Radar-Diagramm)")
     fig, ax = plt.subplots(figsize=(6, 6), subplot_kw=dict(polar=True))
-    #ax.fill(angles, values, color='blue', alpha=0.25)
+    ax.fill(angles, values, color='blue', alpha=0.25)
     ax.plot(angles, values, color='blue', linewidth=2)
     ax.set_yticks(range(1, max(values) + 1))
     ax.set_xticks(angles[:-1])
