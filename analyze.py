@@ -28,7 +28,7 @@ def process_and_visualize_comments(df, n_clusters=5):
         return best_category
 
     # Kommentaren Kategorien zuweisen
-    df["category"] = df["comment"].apply(assign_best_category)
+    df["cluster"] = df["comment"].apply(assign_best_category)
 
     # 2. Sentiment-Analyse: Kombiniert BERT und Emoji-Sentiment
     sentiment_pipeline = pipeline("sentiment-analysis", model="nlptown/bert-base-multilingual-uncased-sentiment")
@@ -48,9 +48,9 @@ def process_and_visualize_comments(df, n_clusters=5):
         for emoji_char in emojis:
             sentiment_row = emoji_sentiment_data[emoji_sentiment_data["Emoji"] == emoji_char]
             if not sentiment_row.empty:
-                positive_score = sentiment_row["Positive (%)"].values[0]
-                negative_score = sentiment_row["Negative (%)"].values[0]
-                neutral_score = sentiment_row["Neutral (%)"].values[0]
+                positive_score = sentiment_row["Positive"].values[0]
+                negative_score = sentiment_row["Negative"].values[0]
+                neutral_score = sentiment_row["Neutral"].values[0]
 
                 if positive_score > negative_score and positive_score > neutral_score:
                     emoji_scores.append(positive_score / 100)  # Positiv skaliert
@@ -86,7 +86,7 @@ def process_and_visualize_comments(df, n_clusters=5):
     # Streamlit Radar-Diagramm
     st.subheader("Cluster-Verteilung (Radar-Diagramm)")
     fig, ax = plt.subplots(figsize=(6, 6), subplot_kw=dict(polar=True))
-    ax.fill(angles, values, color='blue', alpha=0.25)
+    #ax.fill(angles, values, color='blue', alpha=0.25)
     ax.plot(angles, values, color='blue', linewidth=2)
     ax.set_yticks(range(1, max(values) + 1))
     ax.set_xticks(angles[:-1])
@@ -95,12 +95,24 @@ def process_and_visualize_comments(df, n_clusters=5):
     st.pyplot(fig)
 
     # 4. Sentiment-Verlauf über die Zeit
+
+    # Konvertiere die 'published_at'-Spalte in datetime
+    df['published_at'] = pd.to_datetime(df['published_at'], errors='coerce')
+
+    # Überprüfe, ob es fehlerhafte Werte gibt
+    if df['published_at'].isnull().any():
+        st.warning("Einige Werte in 'published_at' konnten nicht in ein Datum konvertiert werden und wurden als NaT markiert.")
+
+    # Spalte 'date' erstellen
     df['date'] = df['published_at'].dt.date
+
+    # Zeitdaten für Sentiment-Verlauf aggregieren
     time_data = df.groupby('date').agg(
         avg_sentiment=('combined_sentiment', 'mean'),
         comment_count=('comment', 'count')
     ).reset_index()
 
+    # Sentiment-Verlauf darstellen
     st.subheader("Sentiment-Verlauf über die Zeit")
     fig, ax1 = plt.subplots(figsize=(10, 6))
     ax1.plot(time_data['date'], time_data['avg_sentiment'], marker='o', label='Durchschnittliches Sentiment')

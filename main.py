@@ -23,4 +23,5 @@ if st.button("Daten abrufen und analysieren"):
     st.subheader("Rohdaten")
     st.dataframe(data.head())
 
-    analyze.process_and_visualize_comments(data)
+    with st.spinner("Analyse..."):
+        analyze.process_and_visualize_comments(data)
