@@ -1,6 +1,7 @@
 import streamlit as st
 
 import youtube
+import analyze
 
 st.title("YouTube Sentiment-Analyse und Clustering")
 query = st.selectbox(
@@ -21,3 +22,5 @@ if st.button("Daten abrufen und analysieren"):
     st.success("Daten erfolgreich abgerufen!")
     st.subheader("Rohdaten")
     st.dataframe(data.head())
+
+    analyze.process_and_visualize_comments(data)
