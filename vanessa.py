@@ -118,17 +118,20 @@ def process_and_visualize_comments(df, n_clusters=5):
     # Kommentaren Kategorien zuweisen
     df["category"] = df["comment"].apply(assign_best_category)
 
-    # 2. Sentiment-Analyse: Kombiniert BERT und Emoji-Sentiment
-    sentiment_pipeline = pipeline("sentiment-analysis", model="nlptown/bert-base-multilingual-uncased-sentiment")
+    from textblob import TextBlob
+
+    # 2. Sentiment-Analyse: Kombiniert TextBlob und Emoji-Sentiment
     emoji_sentiment_data = pd.read_csv("Emoji_Sentiment_Data_v1.0.csv")
 
     def combined_sentiment(comment, emojis):
-       
-        # Text-Sentiment mit BERT berechnen
-        text_sentiment = sentiment_pipeline(comment)[0]['score']
+        """
+        Kombiniert das Text-Sentiment (TextBlob) mit dem Emoji-Sentiment.
+        """
+
+        # Text-Sentiment mit TextBlob berechnen
+        text_sentiment = TextBlob(comment).sentiment.polarity  # Wert zwischen -1 (negativ) und 1 (positiv)
 
         # Emojis analysieren
-       
         if not emojis:
             return text_sentiment  # Kein Emoji, nur Textsentiment
 
@@ -162,7 +165,6 @@ def process_and_visualize_comments(df, n_clusters=5):
     df["combined_sentiment"] = df.apply(
         lambda row: combined_sentiment(row["comment"], row["emoji"]), axis=1
     )
-
     # 3. Radar-Diagramm: Cluster-Verteilung
     cluster_counts = df['cluster'].value_counts().sort_index()
     labels = [f"Cluster {i}" for i in cluster_counts.index]
