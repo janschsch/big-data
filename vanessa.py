@@ -4,15 +4,13 @@ import pandas as pd
 import numpy as np
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.cluster import KMeans
 from transformers import pipeline
 import matplotlib.pyplot as plt
 import streamlit as st
 
 # Funktion zum Abrufen von Kommentaren
 def get_comments(query, max_videos=100, max_comments_per_video=200):
-    API_KEY = 'AIzaSyAUIf2y-Sos1m5S5UMvtBeiGD7WbjyT0L8'
+    API_KEY = 'AIzaSyBtf1FslpfXTpGgCStPMFrkW32M0U9EeLE'
 
     youtube = build('youtube', 'v3', developerKey=API_KEY)
     videos = []
